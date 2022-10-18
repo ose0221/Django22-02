@@ -37,8 +37,8 @@ class TestView(TestCase):
         self.assertEqual(response.status_code, 200)
         soup = BeautifulSoup(response.content, 'html.parser')
         main_area = soup.find('div', id="main-area")
-        self.assertIn(post_001.tile, main_area.text)
-        self.assertIn(post_002.tile, main_area.text)
+        self.assertIn(post_001.title, main_area.text)
+        self.assertIn(post_002.title, main_area.text)
         self.assertNotIn("아무 게시물이 없습니다.", main_area.text)
 
         def test_post_detail(self):
@@ -52,3 +52,11 @@ class TestView(TestCase):
             navbar = soup.nav
             self.assertIn('Blog', navbar.text)
             self.assertIn('AboutMe', navbar.text)
+
+            self.assertIn(post_001.title, soup.title.text)
+
+            main_area = soup.find('div', id='main_area')
+            post_area = main_area.find('div', id='post_area')
+
+            self.assertIn(post_001.title, post_area.text)
+            self.assertIn(post_001.content, post_area.text)
