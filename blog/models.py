@@ -59,3 +59,16 @@ class Post(models.Model):
         # b.docx -> b docx
         # c.xlsx -> c xlsx
         # a.b.c.txt -> a b c txt 인 경우도 있음 //즉, 확장자는 배열의 마지막 요소! => [-1]로 확장자 get
+
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    modified_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.author} : {self.content}'
+
+    def get_absolute_url(self):
+        return f'{self.post.get_absolute_url()}#comment-{self.pk}'

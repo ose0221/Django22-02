@@ -4,6 +4,8 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.utils.text import slugify
+from .forms import CommentForm
+from django.shortcuts import get_object_or_404
 
 # Create your views here.
 class PostUpdate(UpdateView):
@@ -101,6 +103,7 @@ class PostDetail(DetailView):
         context = super(PostDetail,self).get_context_data()
         context['categories']=Category.objects.all()
         context['no_category_post_count']=Post.objects.filter(category=None).count
+        context['comment_form']=CommentForm
         return context
 
     #템플릿 모델명_detail.html : post_detail.html (템플릿 이름을 자동으로 부름)
@@ -132,6 +135,23 @@ def tag_page(request, slug):
         'no_category_post_count': Post.objects.filter(category=None).count
 
     })
+
+def new_comment(request, pk):
+    if request.user.is_authenticated:
+        post=get_object_or_404(Post, pk=pk)
+        if request.method=='POST':
+            comment_form = CommentForm(request.POST)
+            if comment_form.is_valid():
+                comment = comment_form.save(commit=False)
+                comment.post = post
+                comment.author = request.user
+                comment.save()
+                return redirect(comment.get_absolute_url())  #comment-{self.pk}
+        else: #GET
+            return redirect(post.get_absolute_url())
+    else:
+        raise PermissionDenied
+
 
 #def index(request):
 #    posts1 = Post.objects.all().order_by('-pk')
