@@ -60,6 +60,12 @@ class Post(models.Model):
         # c.xlsx -> c xlsx
         # a.b.c.txt -> a b c txt 인 경우도 있음 //즉, 확장자는 배열의 마지막 요소! => [-1]로 확장자 get
 
+    def get_avatar_url(self):
+        if self.author.socialaccount_set.exists():
+            return self.author.socialaccount_set.first().get_avatar_url()
+        else :
+            return 'https://dummyimage.com/50x50/ced4da/6c757d.jpg'
+
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
